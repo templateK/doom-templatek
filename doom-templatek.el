@@ -29,10 +29,10 @@
   :group 'doom-templatek
   :type 'boolean)
 
-;;;###autoload
 (defun doom-templatek--frame-alpha (&optional active inactive)
   "Setting frame's opacity. ACTIVE INACTIVE are used when frame is active/inactive respectively."
-  (let* ((current-alpha    (frame-parameter (selected-frame) 'alpha))
+  (let* ((current-frame    (selected-frame))
+         (current-alpha    (frame-parameter current-frame 'alpha))
          (current-active   (car current-alpha))
          (current-inactive (cadr current-alpha))
          (new-active       (cond (active active)
@@ -42,14 +42,15 @@
                                  (current-inactive current-inactive)
                                  (t (cadr doom-templatek--default-alpha))))
          (new-alpha        (list new-active new-inactive)))
-    (set-frame-parameter (selected-frame) 'alpha new-alpha)
+
+    (when current-frame
+      (set-frame-parameter current-frame 'alpha new-alpha))
 
     (when doom-templatek--set-default-frame-alist
       (let ((current-default-alpha (cdr (assoc 'alpha default-frame-alist))))
         (if current-default-alpha (setf current-default-alpha new-alpha)
-          (add-to-list 'default-frame-alist new-alpha))))))
+          (add-to-list 'default-frame-alist `(alpha . (,new-active . ,new-inactive))))))))
 
-;;;###autoload
 (defun doom-templatek-frame-alpha (&optional alpha-active alpha-inactive)
   "Setting frame's opacity. ALPHA-ACTIVE ALPHA-INACTIVE are used when frame is active/inactive respectively."
   (interactive
@@ -57,6 +58,13 @@
     (read-number "enter alpha-active value (0 - 100):" (nth 0 (alist-get 'alpha default-frame-alist)))
     (read-number "enter alpha-inactive value (0 - 100):" (nth 1 (alist-get 'alpha default-frame-alist)))))
   (doom-templatek--frame-alpha alpha-active alpha-inactive))
+
+(defun doom-templatek-replace-last-sexp ()
+  "Replace sexp right before the cursor."
+  (interactive)
+  (let ((value (eval (elisp--preceding-sexp))))
+    (kill-sexp -1)
+    (insert (format "%S" value))))
 
 (provide 'doom-templatek)
 ;;; doom-templatek.el ends here
