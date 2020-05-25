@@ -52,7 +52,7 @@
       (set-frame-parameter current-frame 'alpha new-alpha))
 
     (when doom-templatek--set-default-frame-alist
-      (let ((current-default-alpha (cdr (assoc 'alpha default-frame-alist))))
+      (let ((current-default-alpha (cdr-safe (assoc 'alpha default-frame-alist))))
         (if current-default-alpha (setf current-default-alpha new-alpha)
           (add-to-list 'default-frame-alist `(alpha . (,new-active . ,new-inactive))))))))
 
