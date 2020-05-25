@@ -24,45 +24,44 @@
   "Templatek Doom Emacs Configurations."
   :group 'doom-templatek)
 
-(defcustom doom-templatek--default-alpha '(90 80)
+(defcustom doom-templatek--default-alpha '(90 . 85)
   "Setting default alpha of the frame variable."
   :group 'doom-templatek
   :type 'list)
 
-(defcustom doom-templatek--set-default-frame-alist nil
+(defcustom doom-templatek--set-default-frame-alist :enable
   "Setting default alpha of the frame variable."
-  :group 'doom-templatek
-  :type 'boolean)
+  :type '(choice
+          (const :tag "Change alpha value of the current and default frame." :enable)
+          (const :tag "Change only current frame alpha value." :disable))
+  :group 'doom-templatek)
 
-(defun doom-templatek--frame-alpha (&optional active inactive)
-  "Setting frame's opacity. ACTIVE INACTIVE are used when frame is active/inactive respectively."
-  (let* ((current-frame    (selected-frame))
-         (current-alpha    (frame-parameter current-frame 'alpha))
-         (current-active   (car current-alpha))
-         (current-inactive (cadr current-alpha))
+(defun doom-templatek--setalpha (&optional active inactive)
+  "Setting frame's opacity. FRAME ACTIVE INACTIVE are used when frame is active/inactive respectively."
+  (let* ((frame            (selected-frame))
+         (current-alpha    (frame-parameter frame 'alpha))
+         (current-active   (car-safe current-alpha))
+         (current-inactive (car-safe (cdr-safe current-alpha)))
          (new-active       (cond (active active)
                                  (current-active current-active)
-                                 (t (car doom-templatek--default-alpha))))
+                                 (t (car-safe doom-templatek--default-alpha))))
          (new-inactive     (cond (inactive inactive)
                                  (current-inactive current-inactive)
-                                 (t (cadr doom-templatek--default-alpha))))
-         (new-alpha        (list new-active new-inactive)))
+                                 (t (car-safe (cdr-safe doom-templatek--default-alpha)))))
+         (new-alpha        `(,new-active . ,new-inactive)))
 
-    (when current-frame
-      (set-frame-parameter current-frame 'alpha new-alpha))
+    (when frame (set-frame-parameter frame 'alpha new-alpha))
 
-    (when doom-templatek--set-default-frame-alist
-      (let ((current-default-alpha (cdr-safe (assoc 'alpha default-frame-alist))))
-        (if current-default-alpha (setf current-default-alpha new-alpha)
-          (add-to-list 'default-frame-alist `(alpha . (,new-active . ,new-inactive))))))))
+    (when (eq doom-templatek--set-default-frame-alist :enable)
+      (add-to-list 'default-frame-alist `(alpha . ,new-alpha)))))
 
-(defun doom-templatek-frame-alpha (&optional alpha-active alpha-inactive)
+(defun doom-templatek-setalpha (&optional alpha-active alpha-inactive)
   "Setting frame's opacity. ALPHA-ACTIVE ALPHA-INACTIVE are used when frame is active/inactive respectively."
   (interactive
    (list
-    (read-number "enter alpha-active value (0 - 100):" (nth 0 (alist-get 'alpha default-frame-alist)))
-    (read-number "enter alpha-inactive value (0 - 100):" (nth 1 (alist-get 'alpha default-frame-alist)))))
-  (doom-templatek--frame-alpha alpha-active alpha-inactive))
+    (read-number "enter alpha-active value (0 - 100):" (car (alist-get 'alpha default-frame-alist)))
+    (read-number "enter alpha-inactive value (0 - 100):" (cdr (alist-get 'alpha default-frame-alist)))))
+  (doom-templatek--setalpha alpha-active alpha-inactive))
 
 (defun doom-templatek-replace-last-sexp ()
   "Replace sexp right before the cursor."
