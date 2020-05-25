@@ -19,22 +19,31 @@
 ;;
 ;;; Code:
 
-(defvar doom-templatek--alpha-value '(90 80))
+(defcustom doom-templatek--default-alpha '(90 80)
+  "Setting default alpha of the frame variable."
+  :group 'doom-templatek
+  :type 'list)
 
-(defun doom-templatek--frame-alpha (active &optional inactive)
+(defcustom doom-templatek--set-default-frame-alist t
+  "Setting default alpha of the frame variable."
+  :group 'doom-templatek
+  :type 'boolean)
+
+(defun doom-templatek--frame-alpha (&optional active inactive)
   "Setting frame's opacity. ACTIVE INACTIVE are used when frame is active/inactive respectively."
   (let* ((current-alpha    (frame-parameter (selected-frame) 'alpha))
          (current-active   (car current-alpha))
          (current-inactive (cadr current-alpha))
-         (new-active       (if active active current-active))
-         (new-inactive     (if inactive inactive current-inactive))
+         (new-active       (cond (active active)
+                                 (current-active current-active)
+                                 (t (car doom-templatek--default-alpha))))
+         (new-inactive     (cond (inactive inactive)
+                                 (current-inactive current-inactive)
+                                 (t (cadr doom-templatek--default-alpha))))
          (new-alpha        (list new-active new-inactive)))
   (set-frame-parameter (selected-frame) 'alpha new-alpha)
-  (setq default-frame-alist `((undecorated . t)
-                              (vertical-scroll-bars  . nil)
-                              (horizontal-scroll-bars  . nil)
-                              (font . "Noto Sans Mono CJK KR-14:width=normal")
-                              (alpha . ,new-alpha)))))
+  (when doom-templatek--set-default-frame-alist
+    (setf (cdr (assoc 'alpha default-frame-alist)) new-alpha))))
 
 (defun doom-templatek-frame-alpha (&optional alpha-active alpha-inactive)
   "Setting frame's opacity. ALPHA-ACTIVE ALPHA-INACTIVE are used when frame is active/inactive respectively."
