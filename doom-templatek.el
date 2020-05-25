@@ -19,18 +19,30 @@
 ;;
 ;;; Code:
 
-(defun setalpha (alpha-active alpha-inactive)
+(defvar doom-templatek--alpha-value '(90 80))
+
+(defun doom-templatek--frame-alpha (active &optional inactive)
+  "Setting frame's opacity. ACTIVE INACTIVE are used when frame is active/inactive respectively."
+  (let* ((current-alpha    (frame-parameter (selected-frame) 'alpha))
+         (current-active   (car current-alpha))
+         (current-inactive (cadr current-alpha))
+         (new-active       (if active active current-active))
+         (new-inactive     (if inactive inactive current-inactive))
+         (new-alpha        (list new-active new-inactive)))
+  (set-frame-parameter (selected-frame) 'alpha new-alpha)
+  (setq default-frame-alist `((undecorated . t)
+                              (vertical-scroll-bars  . nil)
+                              (horizontal-scroll-bars  . nil)
+                              (font . "Noto Sans Mono CJK KR-14:width=normal")
+                              (alpha . ,new-alpha)))))
+
+(defun doom-templatek-frame-alpha (&optional alpha-active alpha-inactive)
   "Setting frame's opacity. ALPHA-ACTIVE ALPHA-INACTIVE are used when frame is active/inactive respectively."
   (interactive
    (list
     (read-number "enter alpha-active value (0 - 100):" (nth 0 (alist-get 'alpha default-frame-alist)))
     (read-number "enter alpha-inactive value (0 - 100):" (nth 1 (alist-get 'alpha default-frame-alist)))))
-  (set-frame-parameter (selected-frame) 'alpha (list alpha-active alpha-inactive))
-  (setq default-frame-alist `((undecorated . t)
-                              (vertical-scroll-bars  . nil)
-                              (horizontal-scroll-bars  . nil)
-                              (font . "Noto Sans Mono CJK KR-14:width=normal")
-                              (alpha . (,alpha-active ,alpha-inactive)))))
+  (doom-templatek--frame-alpha alpha-active alpha-inactive))
 
 (provide 'doom-templatek)
 ;;; doom-templatek.el ends here
