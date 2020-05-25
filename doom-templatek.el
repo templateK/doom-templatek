@@ -18,13 +18,18 @@
 ;;
 ;;
 ;;; Code:
+;;;
+
+(defgroup doom-templatek nil
+  "Templatek Doom Emacs Configurations."
+  :group 'doom-templatek)
 
 (defcustom doom-templatek--default-alpha '(90 80)
   "Setting default alpha of the frame variable."
   :group 'doom-templatek
   :type 'list)
 
-(defcustom doom-templatek--set-default-frame-alist t
+(defcustom doom-templatek--set-default-frame-alist nil
   "Setting default alpha of the frame variable."
   :group 'doom-templatek
   :type 'boolean)
