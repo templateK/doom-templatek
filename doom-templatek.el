@@ -1,4 +1,4 @@
-;;; package --- doom-templatek.el -*- lexical-binding: t; -*-
+;;; doom-templatek --- doom-templatek.el -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2020 TemplateK
 ;;
@@ -29,6 +29,7 @@
   :group 'doom-templatek
   :type 'boolean)
 
+;;;###autoload
 (defun doom-templatek--frame-alpha (&optional active inactive)
   "Setting frame's opacity. ACTIVE INACTIVE are used when frame is active/inactive respectively."
   (let* ((current-alpha    (frame-parameter (selected-frame) 'alpha))
@@ -41,10 +42,14 @@
                                  (current-inactive current-inactive)
                                  (t (cadr doom-templatek--default-alpha))))
          (new-alpha        (list new-active new-inactive)))
-  (set-frame-parameter (selected-frame) 'alpha new-alpha)
-  (when doom-templatek--set-default-frame-alist
-    (setf (cdr (assoc 'alpha default-frame-alist)) new-alpha))))
+    (set-frame-parameter (selected-frame) 'alpha new-alpha)
 
+    (when doom-templatek--set-default-frame-alist
+      (let ((current-default-alpha (cdr (assoc 'alpha default-frame-alist))))
+        (if current-default-alpha (setf current-default-alpha new-alpha)
+          (add-to-list 'default-frame-alist new-alpha))))))
+
+;;;###autoload
 (defun doom-templatek-frame-alpha (&optional alpha-active alpha-inactive)
   "Setting frame's opacity. ALPHA-ACTIVE ALPHA-INACTIVE are used when frame is active/inactive respectively."
   (interactive
